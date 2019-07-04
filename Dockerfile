@@ -9,5 +9,5 @@ RUN mkdir /app
 WORKDIR /app
 COPY ./app /app
 
-RUN adduser -D adduser
-USER user
+RUN adduser --disabled-password -D -g '' newUser
+USER newUser
