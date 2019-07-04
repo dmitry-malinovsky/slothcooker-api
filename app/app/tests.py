@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from app.calc import sum
 
 class CalcTests(TestCase):
