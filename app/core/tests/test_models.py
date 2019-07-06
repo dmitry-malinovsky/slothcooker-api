@@ -14,3 +14,13 @@ class ModelTests(TestCase):
 
         self.assertEqual(user.email, email)
         self.assertTrue(user.check_password(password))
+
+    def test_user_email_is_formatter(self):
+        email = "myemail@TEST.com"
+        password = "124124"
+        user = get_user_model().objects.create_user(
+            email=email,
+            password=password
+        )
+
+        self.assertEqual(user.email, email.lower())
