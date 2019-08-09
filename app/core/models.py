@@ -53,10 +53,24 @@ class Ingredient(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    calories = models.FloatField(null=True, blank=True, default=0)
-    protein = models.FloatField(null=True, blank=True, default=0)
-    carbohydrates = models.FloatField(null=True, blank=True, default=0)
-    fats = models.FloatField(null=True, blank=True, default=0)
+    calories = models.FloatField(default=0)
+    protein = models.FloatField(default=0)
+    carbohydrates = models.FloatField(default=0)
+    fats = models.FloatField(default=0)
 
     def __str__(self):
         return self.name
+
+
+class Recipe(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=255)
+    link = models.CharField(max_length=255, blank=True)
+    ingredients = models.ManyToManyField(Ingredient)
+    tags = models.ManyToManyField(Tag)
+
+    def __str__(self):
+        return self.title
