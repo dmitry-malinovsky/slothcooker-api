@@ -68,6 +68,10 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
     )
     title = models.CharField(max_length=255)
+    calories = models.FloatField(default=0)
+    protein = models.FloatField(default=0)
+    carbohydrates = models.FloatField(default=0)
+    fats = models.FloatField(default=0)
     link = models.CharField(max_length=255, blank=True)
     ingredients = models.ManyToManyField(Ingredient)
     tags = models.ManyToManyField(Tag)
