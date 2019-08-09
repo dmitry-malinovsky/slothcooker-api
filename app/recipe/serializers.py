@@ -13,5 +13,5 @@ class TagSerializer(serializers.ModelSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'calories', 'protein', 'carbohydrates', 'fats')
         read_only_fields = ('id',)

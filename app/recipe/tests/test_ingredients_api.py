@@ -33,8 +33,18 @@ class PrivateIngredientsApiTest(TestCase):
         self.client.force_authenticate(self.user)
 
     def test_retrieve_ingredients(self):
-        Ingredient.objects.create(user=self.user, name='Carrot')
-        Ingredient.objects.create(user=self.user, name='Cake')
+        Ingredient.objects.create(user=self.user,
+                                  name='Carrot',
+                                  calories=1,
+                                  protein=1,
+                                  carbohydrates=1,
+                                  fats=1)
+        Ingredient.objects.create(user=self.user,
+                                  name='Cake',
+                                  calories=1,
+                                  protein=1,
+                                  carbohydrates=1,
+                                  fats=1)
 
         res = self.client.get(INGREDIENTS_URL)
 
@@ -48,8 +58,19 @@ class PrivateIngredientsApiTest(TestCase):
             'testUser2@test.com',
             'password123'
         )
-        ingredient = Ingredient.objects.create(user=self.user, name='Junk')
-        Ingredient.objects.create(user=user2, name='Fruity')
+        ingredient = Ingredient.objects.create(user=self.user,
+                                               name='Junk',
+                                               calories=1,
+                                               protein=1,
+                                               carbohydrates=1,
+                                               fats=1)
+
+        Ingredient.objects.create(user=user2,
+                                  name='Fruity',
+                                  calories=1,
+                                  protein=1,
+                                  carbohydrates=1,
+                                  fats=1)
 
         res = self.client.get(INGREDIENTS_URL)
 
@@ -58,7 +79,11 @@ class PrivateIngredientsApiTest(TestCase):
         self.assertEqual(res.data[0]['name'], ingredient.name)
 
     def test_create_ingredient_success(self):
-        payload = {'name': 'Carrot'}
+        payload = {'name': 'Carrot',
+                   'calories': '1',
+                   'protein': '1',
+                   'carbohydrates': '1',
+                   'fats': '1'}
         self.client.post(INGREDIENTS_URL, payload)
 
         exists = Ingredient.objects.filter(
