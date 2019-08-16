@@ -96,3 +96,64 @@ class PrivateRecipeApiTests(TestCase):
         serializer = RecipeDetailSerializer(recipe)
 
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_recipe(self):
+        payload = {
+            'title': 'Chockolate cheesecake',
+            'calories': 200,
+            'protein': 200,
+            'carbohydrates': 200,
+            'fats': 200
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        recipe = Recipe.objects.get(id=res.data['id'])
+
+        for key in payload.keys():
+            self.assertEqual(payload[key], getattr(recipe, key))
+
+    def test_create_recipe_with_tags(self):
+        tag1 = sample_tag(user=self.user, name='Healthy')
+        tag2 = sample_tag(user=self.user, name='Fatty')
+
+        payload = {
+            'title': 'Chockolate cheesecake',
+            'calories': 200,
+            'protein': 200,
+            'carbohydrates': 200,
+            'fats': 200,
+            'tags': [tag1.id, tag2.id]
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.get(id=res.data['id'])
+        tags = recipe.tags.all()
+        self.assertEqual(tags.count(), 2)
+        self.assertIn(tag1, tags)
+        self.assertIn(tag2, tags)
+
+    def test_create_recipe_with_ingredients(self):
+        ingredient1 = sample_ingredient(user=self.user, name='Chicken')
+        ingredient2 = sample_ingredient(user=self.user, name='Rice')
+
+        payload = {
+            'title': 'Chicken and rice',
+            'calories': 100,
+            'protein': 50,
+            'carbohydrates': 100,
+            'fats': 2,
+            'ingredients': [ingredient1.id, ingredient2.id]
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.get(id=res.data['id'])
+        ingredients = recipe.ingredients.all()
+        self.assertEqual(ingredients.count(), 2)
+        self.assertIn(ingredient1, ingredients)
+        self.assertIn(ingredient2, ingredients)
