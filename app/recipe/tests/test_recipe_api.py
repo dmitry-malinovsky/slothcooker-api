@@ -5,7 +5,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Recipe, Tag, Ingredient
+from core.models import Recipe, Tag, Step
 
 from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
@@ -29,8 +29,8 @@ def sample_tag(user, name='Healthy'):
     return Tag.objects.create(user=user, name=name)
 
 
-def sample_ingredient(user, name='Carrot'):
-    return Ingredient.objects.create(user=user, name=name)
+def sample_step(user, action='Mix evenly'):
+    return Step.objects.create(user=user, action=action)
 
 
 class PublicRecipeApiTests(TestCase):
@@ -88,7 +88,7 @@ class PrivateRecipeApiTests(TestCase):
     def test_view_recipe_detail(self):
         recipe = sample_recipe(user=self.user)
         recipe.tags.add(sample_tag(user=self.user))
-        recipe.ingredients.add(sample_ingredient(user=self.user))
+        recipe.steps.add(sample_step(user=self.user))
 
         url = detail_url(recipe.id)
         res = self.client.get(url)
@@ -97,27 +97,12 @@ class PrivateRecipeApiTests(TestCase):
 
         self.assertEqual(res.data, serializer.data)
 
-    def test_create_recipe(self):
-        payload = {
-            'title': 'Chockolate cheesecake',
-            'calories': 200,
-            'protein': 200,
-            'carbohydrates': 200,
-            'fats': 200
-        }
-
-        res = self.client.post(RECIPES_URL, payload)
-
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        recipe = Recipe.objects.get(id=res.data['id'])
-
-        for key in payload.keys():
-            self.assertEqual(payload[key], getattr(recipe, key))
-
     def test_create_recipe_with_tags(self):
         tag1 = sample_tag(user=self.user, name='Healthy')
         tag2 = sample_tag(user=self.user, name='Fatty')
+
+        step1 = sample_step(user=self.user, action='Mix evenly')
+        step2 = sample_step(user=self.user, action='Bake for 20 mins')
 
         payload = {
             'title': 'Chockolate cheesecake',
@@ -125,6 +110,7 @@ class PrivateRecipeApiTests(TestCase):
             'protein': 200,
             'carbohydrates': 200,
             'fats': 200,
+            'steps': [step1.id, step2.id],
             'tags': [tag1.id, tag2.id]
         }
 
@@ -137,9 +123,9 @@ class PrivateRecipeApiTests(TestCase):
         self.assertIn(tag1, tags)
         self.assertIn(tag2, tags)
 
-    def test_create_recipe_with_ingredients(self):
-        ingredient1 = sample_ingredient(user=self.user, name='Chicken')
-        ingredient2 = sample_ingredient(user=self.user, name='Rice')
+    def test_create_recipe_no_tags(self):
+        step1 = sample_step(user=self.user, action='Mix evenly')
+        step2 = sample_step(user=self.user, action='Bake for 20 mins')
 
         payload = {
             'title': 'Chicken and rice',
@@ -147,13 +133,13 @@ class PrivateRecipeApiTests(TestCase):
             'protein': 50,
             'carbohydrates': 100,
             'fats': 2,
-            'ingredients': [ingredient1.id, ingredient2.id]
+            'steps': [step1.id, step2.id]
         }
 
         res = self.client.post(RECIPES_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         recipe = Recipe.objects.get(id=res.data['id'])
-        ingredients = recipe.ingredients.all()
-        self.assertEqual(ingredients.count(), 2)
-        self.assertIn(ingredient1, ingredients)
-        self.assertIn(ingredient2, ingredients)
+        steps = recipe.steps.all()
+        self.assertEqual(steps.count(), 2)
+        self.assertIn(step1, steps)
+        self.assertIn(step2, steps)

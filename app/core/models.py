@@ -62,6 +62,19 @@ class Ingredient(models.Model):
         return self.name
 
 
+class Step(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    action = models.CharField(max_length=255)
+    ingredient = models.ManyToManyField(Ingredient)
+    weight = models.FloatField(default=0)
+
+    def __str__(self):
+        return self.action
+
+
 class Recipe(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -71,9 +84,9 @@ class Recipe(models.Model):
     calories = models.FloatField(default=0)
     protein = models.FloatField(default=0)
     carbohydrates = models.FloatField(default=0)
+    steps = models.ManyToManyField(Step)
     fats = models.FloatField(default=0)
     link = models.CharField(max_length=255, blank=True)
-    ingredients = models.ManyToManyField(Ingredient)
     tags = models.ManyToManyField(Tag)
 
     def __str__(self):

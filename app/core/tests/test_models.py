@@ -66,3 +66,11 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(recipe), recipe.title)
+
+    def test_step_string(self):
+        step = models.Step.objects.create(
+            user=sample_user(),
+            action='Mix well'
+        )
+
+        self.assertEqual(str(step), step.action)
